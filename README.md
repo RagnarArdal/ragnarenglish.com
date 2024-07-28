@@ -1,2 +1,7 @@
 # ragnarenglish.com
-My blog
+
+My blog!
+
+## Development
+
+Use devcontainer and `hugo server` command.
