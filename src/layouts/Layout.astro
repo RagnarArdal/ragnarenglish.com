@@ -1,0 +1,140 @@
+---
+import '../styles/global.css';
+import ThemeToggle from '../components/ThemeToggle.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const siteTitle = 'Ragnar English';
+const pageTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+    <script is:inline>
+      (function () {
+        const saved = localStorage.getItem('theme');
+        const theme = saved || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body>
+    <header>
+      <div class="header-main">
+        <a href="/" class="brand">{siteTitle}</a>
+        <div class="header-controls">
+          <ThemeToggle />
+          <button
+            class="menu-toggle"
+            aria-label="Menu"
+            aria-expanded="false"
+            aria-controls="main-nav"
+            type="button"
+          >
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </button>
+          <nav id="main-nav">
+            <ul>
+              <li><a href="/posts/">Posts</a></li>
+              <li><a href="/about/">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <p>&copy; {new Date().getFullYear()} {siteTitle}</p>
+    </footer>
+    <script is:inline>
+      (function () {
+        const menuToggle = document.querySelector('.menu-toggle');
+        const nav = document.getElementById('main-nav');
+        if (menuToggle && nav) {
+          menuToggle.addEventListener('click', function () {
+            const isOpen = nav.classList.toggle('open');
+            menuToggle.setAttribute('aria-expanded', String(isOpen));
+          });
+        }
+
+        function updateThemeIcons() {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          document.querySelectorAll('[data-theme-toggle]').forEach(function (toggle) {
+            const lightIcon = toggle.querySelector('.theme-icon-light');
+            const darkIcon = toggle.querySelector('.theme-icon-dark');
+            if (lightIcon) lightIcon.style.display = isDark ? 'none' : 'inline';
+            if (darkIcon) darkIcon.style.display = isDark ? 'inline' : 'none';
+          });
+        }
+        updateThemeIcons();
+
+        document.querySelectorAll('[data-theme-toggle]').forEach(function (toggle) {
+          toggle.addEventListener('click', function () {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateThemeIcons();
+          });
+        });
+      })();
+    </script>
+    <button class="back-to-top" type="button" aria-label="Back to top">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="1.25rem" height="1.25rem">
+        <path d="M12 19V5" />
+        <path d="M5 12l7-7 7 7" />
+      </svg>
+    </button>
+    <script is:inline>
+      (function () {
+        const header = document.querySelector('header');
+        const backToTop = document.querySelector('.back-to-top');
+        const nav = document.getElementById('main-nav');
+        let lastY = 0;
+
+        function onScroll() {
+          const y = window.scrollY || window.pageYOffset;
+          const goingDown = y > lastY;
+          const goingUp = y < lastY;
+          const menuOpen = nav && nav.classList.contains('open');
+
+          if (header && !menuOpen) {
+            if (goingDown && y > 80) {
+              header.classList.add('is-hidden');
+            } else if (goingUp || y <= 0) {
+              header.classList.remove('is-hidden');
+            }
+          }
+
+          if (backToTop) backToTop.classList.toggle('is-visible', y > 400);
+          lastY = y;
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        if (backToTop) {
+          backToTop.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
