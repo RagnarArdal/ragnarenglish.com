@@ -29,6 +29,10 @@ nix develop --command npm run build
 nix develop --command npm run preview
 ```
 
+## Deployment
+
+Deployment is automatic: pushing to `main` runs `.github/workflows/astro.yaml`, which builds the site and publishes it to GitHub Pages at https://www.ragnarenglish.com. There is no manual deploy step — merge or push to `main` and the site updates within a couple of minutes.
+
 ## Documentation
 
 Full documentation: https://docs.astro.build
